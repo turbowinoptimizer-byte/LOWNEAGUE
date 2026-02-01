@@ -1,27 +1,28 @@
-name: Compilar Dylib
-on: [push, pull_request]
+name: Compilar Painel VIP
+on: 
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
     steps:
-      - name: Checkout
+      - name: Checkout do Código
         uses: actions/checkout@v3
 
-      - name: Setup Theos
-        uses: actions/checkout@v3
-        with:
-          repository: theos/theos
-          path: theos
-          submodules: recursive
-
-      - name: Build Tweak
+      - name: Instalar Theos (Compilador iOS)
         run: |
-          export THEOS=$GITHUB_WORKSPACE/theos
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          echo "THEOS=~/theos" >> $GITHUB_ENV
+
+      - name: Compilar Dylib
+        run: |
+          export THEOS=~/theos
           make package FINALPACKAGE=1
           
-      - name: Upload Artifact
+      - name: Enviar Arquivo Pronto
         uses: actions/upload-artifact@v3
         with:
-          name: Painel-Dylib
+          name: Painel_Pronto_OB52
           path: packages/*.deb
